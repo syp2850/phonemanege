@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qdu.mobilePhone.dao.CommentDao">
+
+    <!--查询评论-->
+    <select id="selCom" parameterType="Comment" resultType="Comment">
+        select com_id,username,pro_name,comment,com_date,com_type from comment
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="com_id != null and com_id > 0">
+                com_id = #{com_id}
+            </if>
+            <if test="username != null">
+                username = #{username}
+            </if>
+            <if test="pro_name != null">
+                pro_name = #{pro_name}
+            </if>
+            <if test="comment != null">
+                comment = #{comment}
+            </if>
+            <if test="com_date != null">
+                com_date = #{com_date}
+            </if>
+            <if test="com_type != null">
+                com_type = #{com_type}
+            </if>
+        </trim>
+    </select>
+
+    <!--添加评论-->
+    <insert id="addCom" parameterType="Comment">
+        insert into comment (username,pro_name,comment,com_date,com_type) values (username,pro_name,comment,com_date,com_type)
+    </insert>
+
+    <!--根据id删除评论-->
+    <delete id="delCom">
+        delete from comment where com_id = #{com_id}
+    </delete>
+
+</mapper>

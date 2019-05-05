@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qdu.mobilePhone.dao.ActiveDao">
+
+    <select id="selActive" parameterType="Active" resultType="Active">
+        select act_id,act_name,act_desc,act_img,starttime,endtime,act_status from active
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="Act_id != null">
+                and act_id = #{Act_id}
+            </if>
+            <if test="Act_name != null">
+                and act_name = #{Act_name}
+            </if>
+            <if test="Act_desc != null">
+                and act_desc = #{Act_desc}
+            </if>
+            <if test="Act_img != null">
+                and act_img = #{Act_img}
+            </if>
+            <if test="StartTime != null">
+                and starttime = #{StartTime}
+            </if>
+            <if test="endTime != null">
+                and endtime = #{endTime}
+            </if>
+            <if test="Act_status != null">
+                and act_status = #{Act_status}
+            </if>
+        </trim>
+    </select>
+
+    <insert id="addActive" parameterType="Active">
+        insert into active (act_name,act_desc,act_img,starttime,endtime,act_status) values (Act_name,Act_desc,Act_img,Starttime,endtime,Act_status)
+    </insert>
+
+    <delete id="delActive">
+        delete from active where act_id = #{Act_id}
+    </delete>
+
+    <update id="updActive">
+        update active
+        <trim prefix="set" suffixOverrides="," suffix="where act_id = #{Act_id}">
+            <if test="Act_name != null and Act_name.length()>0">
+                act_name=#{Act_name} ,
+            </if>
+            <if test="Act_desc != null and Act_desc.length()>0">
+                act_desc=#{Act_desc} ,
+            </if>
+            <if test="Act_img != null and Act_img.length()>0">
+                act_img=#{Act_img} ,
+            </if>
+            <if test="Starttime != null and Starttime.length()>0">
+                starttime=#{Starttime} ,
+            </if>
+            <if test="endTime != null and endTime.length()>0">
+                endtime=#{endTime} ,
+            </if>
+            <if test="act_status != null and act_status.length()>0">
+                act_status=#{act_status} ,
+            </if>
+        </trim>
+    </update>
+
+</mapper>

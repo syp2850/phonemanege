@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.qdu.mobilePhone.dao.ProductDao">
+
+    <resultMap id="sel" type="com.qdu.mobilePhone.pojo.Product">
+        <result column="pro_id" property="pro_id"/>
+        <result column="Pro_name" property="Pro_name"/>
+        <result column="Pro_sort" property="Pro_sort"/>
+        <result column="Pro_price" property="Pro_price"/>
+        <result column="Pro_img" property="Pro_img"/>
+        <result column="Pro_desc" property="Pro_desc"/>
+        <result column="Pro_num" property="Pro_num"/>
+        <result column="Pro_weight" property="Pro_weight"/>
+        <association property="color" javaType="com.qdu.mobilePhone.pojo.Color">
+            <id column="id" property="id"/>
+            <result column="color" property="color"/>
+        </association>
+        <association property="version" javaType="com.qdu.mobilePhone.pojo.Version">
+            <id column="id" property="id"/>
+            <result column="version" property="version"/>
+        </association>
+        <association property="brand" javaType="com.qdu.mobilePhone.pojo.Brand">
+            <id column="id" property="id"/>
+            <result column="brand" property="brand"/>
+        </association>
+    </resultMap>
+    
+    <select id="selPro" parameterType="Product" resultMap="sel">
+        select Pro_id,Pro_name,Pro_sort,Pro_price,Pro_img,Pro_desc,Pro_num,Pro_weight,Pro_color,Pro_version,Pro_brand from product,color,version,brand where Pro_num>0 and Pro_color=color.id and Pro_version=version.id
+        and Pro_brand = brand.id
+        <trim prefixOverrides="and|or">
+            <if test="Pro_id != null">
+                and pro_id = #{Pro_id}
+            </if>
+            <if test="Pro_name != null and Pro_name != ''" >
+               and Pro_name = #{Pro_name}
+            </if>
+            <if test="Pro_sort != null and Pro_sort != ''" >
+                and Pro_sort=#{Pro_sort}
+            </if>
+            <if test="Pro_price != null and Pro_price != ''">
+                and Pro_price=#{Pro_price}
+            </if>
+            <if test="Pro_desc != null and Pro_desc != ''">
+                and Pro_desc=#{Pro_desc}
+            </if>
+            <if test="color != null">
+                and color=#{color.color}
+            </if>
+            <if test="version != null">
+                and version=#{version.version}
+            </if>
+            <if test="brand != null">
+                and brand=#{brand.brand}
+            </if>
+        </trim>
+    </select>
+    <select id="getPhonesByPageAndBrand" parameterType="Object" resultMap="sel">
+        select Pro_name,Pro_sort,Pro_img,Pro_desc,Pro_brand from product,color,version,brand where Pro_num>0 and Pro_color=color.id and Pro_version=version.id
+        and Pro_brand = brand.id and Pro_brand = #{Pro_brand} group by Pro_sort
+
+    </select>
+    <select id="getPhonesBySort" parameterType="Object" resultMap="sel">
+        select Pro_id,Pro_name,Pro_sort,Pro_price,Pro_img,Pro_desc,Pro_num,Pro_weight,Pro_color,Pro_version,Pro_brand,brand.brand,color.color,version.version from product,color,version,brand where Pro_num>0 and Pro_color=color.id and Pro_version=version.id
+        and Pro_brand = brand.id and Pro_sort = #{Pro_sort}
+    </select>
+    <select id="selAll" parameterType="Product" resultType="Product">
+        select Pro_name,Pro_sort,Pro_img,Pro_desc,Pro_brand from product group by Pro_sort
+    </select>
+
+    <insert id="insertPro" parameterType="Product" >
+        insert into product values(0,#{Pro_name},#{Pro_sort},#{Pro_price},#{Pro_img},#{Pro_desc},#{Pro_num},#{Pro_weight},#{Pro_color},#{Pro_version},#{Pro_brand},#{Pro_hot})
+    </insert>
+
+    <delete id="delPro">
+        delete from product where Pro_id=#{Pro_id}
+    </delete>
+
+    <update id="updatePro" >
+        update product
+        <trim prefix="set" suffixOverrides="," suffix="where Pro_id=#{Pro_id}">
+            <if test="Pro_name!=null and Pro_name!=''">
+                Pro_name=#{Pro_name},
+            </if>
+            <if test="Pro_sort!=null and Pro_sort!=''">
+                Pro_sort=#{Pro_sort},
+            </if>
+            <if test="Pro_price!=null and Pro_price!=''">
+                Pro_price=#{Pro_price},
+            </if>
+            <if test="Pro_img!=null and Pro_img!=''">
+                Pro_img=#{Pro_img},
+            </if>
+            <if test="Pro_desc!=null and Pro_desc!=''">
+                Pro_desc=#{Pro_desc},
+            </if>
+            <if test="Pro_num!=null and Pro_num!=''">
+                Pro_num=#{Pro_num},
+            </if>
+            <if test="Pro_weight!=null and Pro_weight!=''">
+                Pro_weight=#{Pro_weight},
+            </if>
+            <if test="Pro_color!=null and Pro_color!=''">
+                Pro_color=#{Pro_color},
+            </if>
+            <if test="Pro_color!=null and Pro_color!=''">
+                Pro_color=#{Pro_color},
+            </if>
+            <if test="Pro_brand!=null and Pro_brand!=''">
+                Pro_brand=#{Pro_brand},
+            </if>
+        </trim>
+    </update>
+
+    <select id="selBrand" resultType="String">
+        select distinct(Pro_sort) from product group by pro_name
+    </select>
+    <!--获取指定型号的手机  只获取一个 -->
+    <select id="getTwoProducts" parameterType="Object" resultMap="sel">
+     SELECT
+	      t2.*,
+	      t.id colorId,t.color,
+          t3.id versionId,t3.version,
+          t4.id brandId,t4.brand
+      FROM
+	      product t2
+      LEFT JOIN color t ON t.id = t2.Pro_color
+      LEFT JOIN version t3 on t3.id = t2.Pro_version
+	  left join brand t4 on t4.id = t2.Pro_brand
+      WHERE
+	   	Pro_hot = (select max(Pro_hot) from product where Pro_brand = #{Pro_brand})
+	   	and Pro_brand = #{Pro_brand}
+      GROUP BY
+	    Pro_color
+    </select>
+    <select id="getColors" parameterType="Object" resultType="com.qdu.mobilePhone.pojo.Color">
+      	select t2.id,t2.color from product t1 left join color t2 on t1.Pro_color = t2.id where Pro_Sort = #{Pro_sort} GROUP BY t2.color;
+    </select>
+    <select id="getVersions" parameterType="Object" resultType="com.qdu.mobilePhone.pojo.Version">
+      	select t2.id,t2.version from product t1 left join version t2 on t1.Pro_version = t2.id where Pro_Sort = #{Pro_sort} GROUP BY t2.version;
+    </select>
+    <select id="getIMGS" parameterType="Object" resultType="com.qdu.mobilePhone.pojo.Imgs">
+        SELECT
+            t3.pro_id,
+            t2.path,
+            t2.img_type
+        FROM
+            pro_imgs t1
+            LEFT JOIN imgs t2 ON t2.id = t1.img_id
+            LEFT JOIN product t3 ON t3.pro_id = t1.pro_id
+        WHERE
+            t1.pro_id = #{pro_id}
+    </select>
+    <select id="getProductsByColorAndConfig" parameterType="Object" resultType="com.qdu.mobilePhone.pojo.Product">
+        SELECT
+            *
+        FROM
+            product
+        WHERE
+            Pro_sort = #{Pro_sort} and Pro_color = #{Pro_color} and Pro_version = #{Pro_version}
+    </select>
+</mapper>

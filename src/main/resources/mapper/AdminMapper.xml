@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qdu.mobilePhone.dao.AdminDao">
+
+    <select id="selAdmin" parameterType="Admin" resultType="Admin">
+        select id,user,password,status from admin
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="user != null">
+                and user = #{user}
+            </if>
+            <if test="password != null">
+                and password = #{password}
+            </if>
+            <if test="id != null and id > 0">
+                and id = #{id}
+            </if>
+        </trim>
+    </select>
+
+    <!--新增、添加用户信息-->
+    <insert id="addAdmin" parameterType="Admin">
+        insert into user (username,password,status)values (#{username},#{password},#{status})
+    </insert>
+
+    <!--删除用户信息-->
+    <delete id="delAdmin" parameterType="Integer">
+        delete from user where id=#{id}
+    </delete>
+
+    <!--修改用户信息-->
+    <update id="updAdmin" parameterType="Admin">
+        update user
+        <trim prefix="set" suffixOverrides="," suffix="where id=#{id}">
+            <if test="user != null">
+                user =#{user},
+            </if>
+            <if test="password != null">
+                password = #{password},
+            </if>
+            <if test="status != null and status > 1">
+                status = #{status},
+            </if>
+        </trim>
+    </update>
+
+</mapper>
